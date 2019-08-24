@@ -7,7 +7,8 @@ import operator
 import seaborn as sns
 
 def makeGraph(csvFile):
-	reader = csv.reader(open(csvFile, 'rU'), dialect=csv.excel_tab, delimiter=",")
+	reader = csv.reader(open(csvFile, 'rU'), dialect=csv.excel_tab, 
+						delimiter=",")
 	x = list(reader)
 	dataFile = np.array(x).astype("float")
 	graph = nx.from_numpy_matrix(dataFile)
@@ -25,7 +26,7 @@ def degree(graph):
 def getMinCentrality(centrality):
 	location = min(centrality.iteritems(), 
 				key=operator.itemgetter(1))[0]
-	lowest = centrality[lowest]
+	lowest = centrality[location]
 	return location, lowest
 
 def getMaxCentrality(centrality):
@@ -59,6 +60,11 @@ def pageRank(graph):
 	page = nx.pagerank(G=graph)
 	return page
 
+def hits(graph):
+	'''returns two-tuple of dictionaries'''
+	hub, authority = nx.hits(G=graph, normalized=True)
+	return hub, authority
+
 japGraph = makeGraph("Japanais_littlneck_clam.csv")
 pacGraph = makeGraph("Pacific_littlneck_clam.csv")
 redGraph = makeGraph("Red_rock_crab.csv")
@@ -73,8 +79,10 @@ getMaxCentrality(Japanais_littlneck_clamCentrality)
 japBetween = betweenness(japGraph)
 japFlow = flow(japGraph)
 japPage = pageRank(japGraph)
+japHub, japAuthority = hits(japGraph)
 
-excel = pd.DataFrame([japBetween, japFlow, japPage], index=["Betweenness", "Flow", "Page Rank"])
+excel = pd.DataFrame([japBetween, japFlow, japPage, japHub, japAuthority], 
+			index=["Betweenness", "Flow", "Page Rank", "Hub", "Authority"])
 excel.to_excel('Japanese.xlsx')
 
 # helix = pd.read_csv('heatmap_japanese.csv')
